@@ -1,49 +1,1602 @@
+/* =========================================================================
+   A Bright Room — Global Styles
+   Minimal, dark, monospace. Progressive reveal. Atmospheric.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   CSS Custom Properties (chapter-themeable)
+   ------------------------------------------------------------------------- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary: #D4A04A;
+  --color-accent: #C0392B;
+  --color-bg: #0A0A0A;
+  --color-text: #D4A04A;
+  --color-text-dim: #8A7A4A;
+  --color-text-muted: #555540;
+  --color-text-bright: #F0D080;
+  --color-surface: #111110;
+  --color-surface-hover: #1A1A18;
+  --color-border: #2A2A20;
+  --color-danger: #C0392B;
+  --color-danger-dim: #7A2218;
+  --color-success: #4A8A4A;
+  --color-warning: #D4A04A;
+  --color-health-high: #4A8A4A;
+  --color-health-mid: #D4A04A;
+  --color-health-low: #C0392B;
+  --font-main: "IBM Plex Mono", "Courier New", "Courier", monospace;
+  --transition-fade: 0.6s ease;
+  --transition-fast: 0.2s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* -------------------------------------------------------------------------
+   Reset & Base
+   ------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
+  font-size: 14px;
   height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
+  font-family: var(--font-main);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
 a {
-  color: inherit;
+  color: var(--color-text);
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
+a:hover {
+  color: var(--color-text-bright);
+}
+
+/* -------------------------------------------------------------------------
+   Scrollbar
+   ------------------------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-muted);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-dim);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-text-muted) var(--color-bg);
+}
+
+/* -------------------------------------------------------------------------
+   Animations
+   ------------------------------------------------------------------------- */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  10% { opacity: 0.9; }
+  20% { opacity: 1; }
+  40% { opacity: 0.95; }
+  50% { opacity: 0.85; }
+  60% { opacity: 1; }
+  80% { opacity: 0.92; }
+}
+
+.fade-in {
+  animation: fadeIn var(--transition-fade) forwards;
+}
+
+.fade-in-up {
+  animation: fadeInUp var(--transition-fade) forwards;
+}
+
+.fade-in-slide {
+  animation: fadeInSlide var(--transition-fade) forwards;
+}
+
+/* -------------------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------------------- */
+
+button {
+  font-family: var(--font-main);
+  font-size: 1rem;
+  color: var(--color-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem 0;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+  text-align: left;
+  line-height: 1.6;
+}
+
+button:hover:not(:disabled) {
+  color: var(--color-text-bright);
+}
+
+button:disabled {
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+button:active:not(:disabled) {
+  opacity: 0.7;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--color-text-dim);
+  transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--color-text-bright);
+  color: var(--color-text-bright);
+}
+
+.btn:disabled {
+  border-color: var(--color-text-muted);
+  color: var(--color-text-muted);
+}
+
+.btn-primary {
+  border-color: var(--color-text);
+}
+
+.btn-danger {
+  border-color: var(--color-danger-dim);
+  color: var(--color-danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  border-color: var(--color-danger);
+}
+
+/* -------------------------------------------------------------------------
+   Layout — Game Shell
+   ------------------------------------------------------------------------- */
+
+.game-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.game-top-bar {
+  flex-shrink: 0;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border);
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.game-top-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Game navigation (trading post, map) */
+
+.game-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.game-nav-btn {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--color-text-dim);
+  color: var(--color-text-dim);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.game-nav-btn:hover {
+  border-color: var(--color-text-bright);
+  color: var(--color-text-bright);
+}
+
+.game-nav-btn--active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.game-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 2rem;
+  padding-top: 1rem;
+}
+
+.game-panel-left {
+  flex: 3;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-panel-right {
+  flex: 2;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
+/* -------------------------------------------------------------------------
+   Text Log
+   ------------------------------------------------------------------------- */
+
+.text-log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.text-log-entry {
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+  padding: 0.15rem 0;
+  line-height: 1.6;
+}
+
+.text-log-entry--narrative {
+  color: var(--color-text);
+}
+
+.text-log-entry--event {
+  color: var(--color-text-bright);
+}
+
+.text-log-entry--system {
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+}
+
+.text-log-entry--combat {
+  color: var(--color-danger);
+}
+
+.text-log-entry--death {
+  color: var(--color-danger);
+  font-style: italic;
+}
+
+.text-log-entry--quest {
+  color: var(--color-success);
+}
+
+.text-log-entry--dialogue {
+  color: var(--color-text-bright);
+  font-style: italic;
+}
+
+.text-log-entry--checkpoint {
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+}
+
+/* -------------------------------------------------------------------------
+   Resource Bar
+   ------------------------------------------------------------------------- */
+
+.resource-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  font-size: 0.85rem;
+}
+
+.resource-item {
+  display: inline-flex;
+  gap: 0.3rem;
+  white-space: nowrap;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.resource-name {
+  color: var(--color-text-dim);
+}
+
+.resource-value {
+  color: var(--color-text);
+}
+
+.resource-value--capped {
+  color: var(--color-text-bright);
+}
+
+.resource-value--empty {
+  color: var(--color-danger);
+}
+
+.resource-cap {
+  color: var(--color-text-muted);
+}
+
+/* -------------------------------------------------------------------------
+   Stoke Button
+   ------------------------------------------------------------------------- */
+
+.stoke-wrapper {
+  padding: 0.5rem 0;
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.stoke-btn {
+  display: block;
+  font-size: 1rem;
+  padding: 0.6rem 1.5rem;
+  border: 1px solid var(--color-text-dim);
+  transition: border-color var(--transition-fast), color var(--transition-fast), opacity var(--transition-fast);
+  width: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.stoke-btn:hover:not(:disabled) {
+  border-color: var(--color-text-bright);
+  color: var(--color-text-bright);
+}
+
+.stoke-btn:disabled {
+  border-color: var(--color-text-muted);
+  color: var(--color-text-muted);
+}
+
+.stoke-btn:active:not(:disabled) {
+  opacity: 0.6;
+}
+
+.stoke-cooldown-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background-color: var(--color-text-dim);
+  transition: width 0.3s linear;
+}
+
+.auto-stoke-btn {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  margin-top: 0.3rem;
+  border: 1px solid var(--color-text-muted);
+  color: var(--color-text-muted);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.auto-stoke-btn:hover {
+  border-color: var(--color-text-dim);
+  color: var(--color-text-dim);
+}
+
+.auto-stoke-btn.active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* -------------------------------------------------------------------------
+   Speed Controls
+   ------------------------------------------------------------------------- */
+
+.speed-controls {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.speed-btn {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--color-text-muted);
+  color: var(--color-text-muted);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.speed-btn:hover {
+  border-color: var(--color-text-dim);
+  color: var(--color-text-dim);
+}
+
+.speed-btn.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* -------------------------------------------------------------------------
+   Panels (Build, Craft, Quest)
+   ------------------------------------------------------------------------- */
+
+.panel {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-text-dim);
+  font-size: 0.8rem;
+  text-transform: lowercase;
+  letter-spacing: 0.1em;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 0.5rem;
+}
+
+.multiplier-controls {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.multiplier-btn {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--color-text-muted);
+  color: var(--color-text-muted);
+  letter-spacing: 0;
+  text-transform: none;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.multiplier-btn:hover {
+  border-color: var(--color-text-dim);
+  color: var(--color-text-dim);
+}
+
+.multiplier-btn.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.panel-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+  animation: fadeInSlide 0.4s ease forwards;
+}
+
+.panel-item-name {
+  flex: 1;
+}
+
+.panel-item-cost {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  margin-right: 0.5rem;
+}
+
+.panel-item-cost--unaffordable {
+  color: var(--color-danger-dim);
+}
+
+.panel-item-level {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-right: 0.5rem;
+}
+
+.panel-item-btn {
+  font-size: 0.85rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--color-text-dim);
+}
+
+.panel-item-btn:hover:not(:disabled) {
+  border-color: var(--color-text-bright);
+}
+
+.panel-item-btn:disabled {
+  border-color: var(--color-text-muted);
+}
+
+/* Tooltip popup */
+
+.panel-item-wrapper {
+  position: relative;
+}
+
+.panel-item-name--hoverable {
+  cursor: default;
+  border-bottom: 1px dotted var(--color-text-muted);
+}
+
+.tooltip-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 0.6rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-text-dim);
+  min-width: 200px;
+  max-width: 280px;
+  pointer-events: none;
+  animation: fadeIn 0.1s ease forwards;
+}
+
+.tooltip-desc {
+  color: var(--color-text);
+  margin-bottom: 0.3rem;
+}
+
+.tooltip-type {
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-bottom: 0.2rem;
+}
+
+.tooltip-effects {
+  list-style: none;
+  padding: 0;
+  margin: 0.2rem 0 0 0;
+}
+
+.tooltip-effects li {
+  color: var(--color-success);
+  padding: 0.1rem 0;
+}
+
+.tooltip-effects li::before {
+  content: '+ ';
+  color: var(--color-text-muted);
+}
+
+.tooltip-workers {
+  color: var(--color-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* NPC list */
+
+.npc-relationship {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-right: 0.5rem;
+}
+
+.panel-item-btn--new {
+  border-color: var(--color-text) !important;
+  color: var(--color-text) !important;
+}
+
+.panel-item-btn--seen {
+  border-color: var(--color-success) !important;
+  color: var(--color-success) !important;
+}
+
+.gift-menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.4rem 0;
+  animation: fadeIn 0.15s ease forwards;
+}
+
+.gift-option {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--color-text-dim);
+  color: var(--color-text-dim);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.gift-option:hover:not(:disabled) {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.inventory-health {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  padding: 0.2rem 0;
+}
+
+.item-stat {
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+  margin-left: 0.5rem;
+}
+
+.panel-item--equipped {
+  border-left: 2px solid var(--color-success);
+  padding-left: 0.4rem;
+}
+
+.equipped-badge {
+  color: var(--color-success);
+  font-size: 0.7rem;
+}
+
+.gift-option--cant {
+  border-color: var(--color-text-muted) !important;
+  color: var(--color-text-muted) !important;
+}
+
+/* Worker controls */
+
+.worker-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.worker-btn {
+  width: 1.4rem;
+  height: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-text-dim);
+  font-size: 0.75rem;
+  padding: 0;
+  text-align: center;
+  line-height: 1;
+}
+
+.worker-btn:hover:not(:disabled) {
+  border-color: var(--color-text-bright);
+}
+
+.worker-count {
+  min-width: 1rem;
+  text-align: center;
+  color: var(--color-text-dim);
+}
+
+/* -------------------------------------------------------------------------
+   Map / Exploration
+   ------------------------------------------------------------------------- */
+
+.map-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-bg);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.map-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 100%;
+  padding: 1rem;
+}
+
+.map-grid {
+  font-family: var(--font-main);
+  font-size: 1.4rem;
+  line-height: 1.1;
+  letter-spacing: 0.3em;
+  white-space: pre;
+  user-select: none;
+  overflow: auto;
+  max-height: 65vh;
+  max-width: 90vw;
+}
+
+.map-tile {
+  display: inline-block;
+  width: 1ch;
+  text-align: center;
+}
+
+.map-tile--unexplored {
+  color: var(--color-text-muted);
+  opacity: 0.3;
+}
+
+.map-tile--explored {
+  opacity: 1;
+}
+
+.map-tile--player {
+  color: var(--color-text-bright);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.map-tile--poi {
+  color: var(--color-accent);
+}
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 700px;
+  padding: 0 1rem;
+  gap: 1rem;
+}
+
+.map-title {
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+}
+
+.map-pos {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.map-bottom {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.map-arrows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.map-arrow-row {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.map-arrow {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--color-text-dim);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.map-arrow:hover:not(:disabled) {
+  border-color: var(--color-text-bright);
+  color: var(--color-text-bright);
+}
+
+.map-arrow-center {
+  border-color: var(--color-text-muted);
+  color: var(--color-text-muted);
+  font-size: 0.5rem;
+}
+
+.map-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+}
+
+.map-status-row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.map-terrain-info {
+  color: var(--color-text);
+}
+
+.map-poi-name {
+  color: var(--color-accent);
+}
+
+.map-hint {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  margin-top: 0.3rem;
+}
+
+/* -------------------------------------------------------------------------
+   Trading Post
+   ------------------------------------------------------------------------- */
+
+.forced-return-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 400px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.forced-return-text {
+  color: var(--color-text);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.forced-return-btn {
+  font-size: 0.9rem;
+  padding: 0.4rem 2rem;
+  border: 1px solid var(--color-text-dim);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast);
+}
+
+.forced-return-btn:hover {
+  border-color: var(--color-text-bright);
+}
+
+/* POI Discovery Popup */
+
+.poi-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.poi-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.poi-popup-intro {
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.poi-popup-name {
+  color: var(--color-primary);
+  font-size: 1.2rem;
+  font-weight: normal;
+  text-transform: lowercase;
+}
+
+.poi-popup-desc {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.poi-popup-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.poi-popup-btn {
+  font-size: 0.9rem;
+  padding: 0.4rem 1.5rem;
+  border: 1px solid var(--color-text-dim);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.poi-popup-btn--enter {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.poi-popup-btn--enter:hover {
+  color: var(--color-text-bright);
+  border-color: var(--color-text-bright);
+}
+
+.poi-popup-btn--flee {
+  color: var(--color-text-muted);
+}
+
+.poi-popup-btn--flee:hover {
+  color: var(--color-text-dim);
+  border-color: var(--color-text-dim);
+}
+
+/* -------------------------------------------------------------------------
+   Trading Post
+   ------------------------------------------------------------------------- */
+
+.trading-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 500px;
+  width: 100%;
+  padding: 2rem;
+}
+
+.trading-message {
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.trading-give {
+  flex: 1;
+  font-size: 0.85rem;
+}
+
+.trading-arrow {
+  color: var(--color-text-muted);
+  margin: 0 0.5rem;
+}
+
+.trading-receive {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--color-success);
+}
+
+/* -------------------------------------------------------------------------
+   Combat
+   ------------------------------------------------------------------------- */
+
+.combat-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 10, 10, 0.95);
+  z-index: 110;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.combat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 500px;
+  width: 100%;
+  padding: 1rem;
+}
+
+.combat-health {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.health-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.health-label {
+  min-width: 5rem;
+  color: var(--color-text-dim);
+}
+
+.health-bar-track {
+  flex: 1;
+  height: 6px;
+  background-color: var(--color-surface);
+  position: relative;
+  overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.health-bar-fill--high {
+  background-color: var(--color-health-high);
+}
+
+.health-bar-fill--mid {
+  background-color: var(--color-health-mid);
+}
+
+.health-bar-fill--low {
+  background-color: var(--color-health-low);
+}
+
+.combat-log {
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem 0;
+}
+
+.combat-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.combat-actions button {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--color-text-dim);
+  font-size: 0.9rem;
+}
+
+.combat-actions button:hover:not(:disabled) {
+  border-color: var(--color-text-bright);
+}
+
+/* -------------------------------------------------------------------------
+   Environment Meter
+   ------------------------------------------------------------------------- */
+
+.env-meter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  padding: 0.4rem 0;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.env-meter-label {
+  color: var(--color-text-dim);
+  min-width: 4rem;
+}
+
+.env-meter-track {
+  flex: 1;
+  height: 4px;
+  background-color: var(--color-surface);
+  position: relative;
+  max-width: 120px;
+}
+
+.env-meter-fill {
+  height: 100%;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.env-meter-fill--safe {
+  background-color: var(--color-success);
+}
+
+.env-meter-fill--warning {
+  background-color: var(--color-warning);
+}
+
+.env-meter-fill--danger {
+  background-color: var(--color-danger);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.env-meter-warning {
+  color: var(--color-danger);
+  font-size: 0.75rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* -------------------------------------------------------------------------
+   NPC Dialogue Overlay
+   ------------------------------------------------------------------------- */
+
+.dialogue-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 10, 10, 0.9);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.dialogue-container {
+  max-width: 500px;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dialogue-npc-name {
+  color: var(--color-text-bright);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.dialogue-text {
+  color: var(--color-text);
+  line-height: 1.8;
+  font-style: italic;
+}
+
+.dialogue-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.dialogue-option {
+  text-align: left;
+  padding: 0.4rem 0;
+  color: var(--color-text-dim);
+  transition: color var(--transition-fast);
+  cursor: pointer;
+}
+
+.dialogue-option::before {
+  content: "> ";
+  color: var(--color-text-muted);
+}
+
+.dialogue-option:hover {
+  color: var(--color-text-bright);
+}
+
+.dialogue-close {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  align-self: flex-end;
+  padding: 0.3rem 0;
+}
+
+.dialogue-close:hover {
+  color: var(--color-text);
+}
+
+/* -------------------------------------------------------------------------
+   Notifications / Toasts
+   ------------------------------------------------------------------------- */
+
+.notifications-container {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.notification-toast {
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  padding: 0.5rem 1rem;
+  animation: fadeIn 0.3s ease forwards;
+  pointer-events: auto;
+}
+
+.notification-toast--exiting {
+  animation: fadeOut 0.5s ease forwards;
+}
+
+/* -------------------------------------------------------------------------
+   Offline Summary
+   ------------------------------------------------------------------------- */
+
+.offline-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 10, 10, 0.95);
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.offline-container {
+  max-width: 400px;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: center;
+}
+
+.offline-title {
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+}
+
+.offline-resources {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.offline-resource-gain {
+  color: var(--color-success);
+}
+
+.offline-resource-loss {
+  color: var(--color-danger);
+}
+
+.offline-dismiss {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-text-dim);
+  font-size: 0.85rem;
+  align-self: center;
+}
+
+/* -------------------------------------------------------------------------
+   Departure Sequence
+   ------------------------------------------------------------------------- */
+
+.departure-panel {
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.departure-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.departure-stage {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+}
+
+.departure-stage--complete {
+  color: var(--color-text-dim);
+  text-decoration: line-through;
+}
+
+.departure-btn {
+  margin-top: 1rem;
+  padding: 0.6rem 1.5rem;
+  border: 1px solid var(--color-text-bright);
+  color: var(--color-text-bright);
+  font-size: 1rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.departure-btn:hover {
+  border-color: var(--color-text-bright);
+  background-color: var(--color-surface);
+}
+
+/* -------------------------------------------------------------------------
+   Quest Log
+   ------------------------------------------------------------------------- */
+
+.quest-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0;
+  animation: fadeInSlide 0.4s ease forwards;
+}
+
+.quest-item--active {
+  color: var(--color-text);
+}
+
+.quest-item--completed {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.quest-objective {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  flex-shrink: 0;
+}
+
+.quest-objective--done {
+  color: var(--color-success);
+}
+
+.tooltip-step {
+  color: var(--color-text);
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.tooltip-hint {
+  color: var(--color-warning);
+  margin-top: 0.2rem;
+  font-style: italic;
+}
+
+/* -------------------------------------------------------------------------
+   Title Screen
+   ------------------------------------------------------------------------- */
+
+.title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 2rem;
+  animation: fadeIn 1.5s ease forwards;
+}
+
+.title-text {
+  font-size: 1.5rem;
+  color: var(--color-text);
+  letter-spacing: 0.15em;
+  animation: flicker 4s ease-in-out infinite;
+}
+
+.title-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.title-menu button {
+  font-size: 1rem;
+  color: var(--color-text-dim);
+  padding: 0.3rem 0;
+  letter-spacing: 0.05em;
+  transition: color var(--transition-fast);
+}
+
+.title-menu button:hover:not(:disabled) {
+  color: var(--color-text-bright);
+}
+
+.title-menu button:disabled {
+  color: var(--color-text-muted);
+}
+
+/* -------------------------------------------------------------------------
+   Settings Page
+   ------------------------------------------------------------------------- */
+
+.settings-page {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.settings-header {
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-section-title {
+  color: var(--color-text-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.3rem;
+}
+
+.save-slot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  gap: 0.5rem;
+}
+
+.save-slot-info {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+}
+
+.save-slot-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-slot-actions button {
+  font-size: 0.8rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--color-text-dim);
+}
+
+.settings-back {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  padding: 0.3rem 0;
+}
+
+.settings-back:hover {
+  color: var(--color-text);
+}
+
+.import-export {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.import-export button {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--color-text-dim);
+}
+
+/* -------------------------------------------------------------------------
+   Mobile Responsive
+   ------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
   html {
-    color-scheme: dark;
+    font-size: 13px;
+  }
+
+  .game-main {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .game-panel-left {
+    flex: none;
+    max-height: 45vh;
+  }
+
+  .game-panel-right {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .resource-bar {
+    gap: 0.3rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .map-grid {
+    font-size: 1rem;
+  }
+
+  .map-controls button {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  .title-text {
+    font-size: 1.2rem;
+  }
+
+  .combat-container {
+    padding: 0.75rem;
+  }
+
+  .dialogue-container {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 12px;
+  }
+
+  .game-shell {
+    padding: 0 0.5rem;
+  }
+
+  .game-panel-left {
+    max-height: 40vh;
   }
 }
