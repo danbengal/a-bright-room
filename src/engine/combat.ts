@@ -332,9 +332,16 @@ function applyVictory(
   }
 
   const logEntry = createLogEntry(
-    `Victory! Defeated the ${enemyDef.name}.`,
+    `victory. the ${enemyDef.name} falls.`,
     'combat',
   );
+
+  // Set flags for special enemies
+  const newFlags = { ...s.flags };
+  if (enemyDef.id === 'raiderKing') {
+    newFlags.bossDefeated = true;
+    newFlags.raiderKingDefeated = true;
+  }
 
   return {
     ...s,
@@ -343,6 +350,7 @@ function applyVictory(
       log: combatLog,
     },
     resources: newResources,
+    flags: newFlags,
     health: s.combat.playerHealth ?? s.health,
     textLog: [...s.textLog, logEntry],
   };

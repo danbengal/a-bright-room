@@ -40,11 +40,22 @@ export default function PlayPage() {
   const craftingUnlocked = useGameStore((s) => s.chapterState.ticks >= 55);
 
   const [tradingOpen, setTradingOpen] = useState(false);
+  const [showSaveExport, setShowSaveExport] = useState(false);
 
-  // Initialize game ONCE on mount
+  // Initialize game ONCE on mount — check URL for continue flag
   useEffect(() => {
     if (initRef.current) return;
     initRef.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('continue') === '1') {
+      const { loadFromLocalStorage, SAVE_KEYS } = require('@/persistence/save');
+      const save = loadFromLocalStorage(SAVE_KEYS.autosave);
+      if (save) {
+        useGameStore.getState().loadGame(save);
+        return;
+      }
+    }
     useGameStore.getState().initGame(chapter01Config);
   }, []);
 
@@ -94,6 +105,12 @@ export default function PlayPage() {
                 {speed}x
               </button>
             ))}
+            <button
+              className="speed-btn"
+              onClick={() => setShowSaveExport(true)}
+            >
+              save
+            </button>
           </div>
         </div>
         <GameNav onOpenTrading={() => setTradingOpen(true)} />
@@ -121,7 +138,65 @@ export default function PlayPage() {
       {tradingOpen && <TradingPost onClose={() => setTradingOpen(false)} />}
       <POIPopup />
       <ForcedReturnPopup />
+      {showSaveExport && <SaveExportModal onClose={() => setShowSaveExport(false)} />}
       <Notifications />
+    </div>
+  );
+}
+
+function SaveExportModal({ onClose }: { onClose: () => void }) {
+  const [code, setCode] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    // Generate save code on mount
+    const state = useGameStore.getState();
+    const saveState = {
+      version: state.version,
+      lastSaveTimestamp: Date.now(),
+      currentChapter: state.currentChapter,
+      chapterState: state.chapterState,
+      globalState: state.globalState,
+    };
+    const json = JSON.stringify(saveState);
+    const encoded = btoa(json);
+    setCode(encoded);
+
+    // Also save to autosave slot
+    state.autoSave();
+  }, []);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className="map-overlay">
+      <div className="save-modal">
+        <h3 className="save-modal-title">save code</h3>
+        <p className="save-modal-desc">
+          copy this code and paste it into &quot;load save&quot; on the title screen to restore your progress.
+        </p>
+        <textarea
+          className="import-textarea"
+          value={code}
+          readOnly
+          rows={6}
+          onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+        />
+        <div className="save-modal-actions">
+          <button className="poi-popup-btn poi-popup-btn--enter" onClick={handleCopy}>
+            {copied ? 'copied' : 'copy to clipboard'}
+          </button>
+          <button className="poi-popup-btn poi-popup-btn--flee" onClick={onClose}>
+            close
+          </button>
+        </div>
+        <p className="save-modal-note">game also auto-saves to this browser every 30 seconds.</p>
+      </div>
     </div>
   );
 }

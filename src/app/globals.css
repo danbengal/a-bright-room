@@ -1458,6 +1458,99 @@ button:active:not(:disabled) {
 }
 
 /* -------------------------------------------------------------------------
+   Save Import / Export
+   ------------------------------------------------------------------------- */
+
+.import-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+}
+
+.import-label {
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+}
+
+.import-textarea {
+  width: 100%;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-main);
+  font-size: 0.7rem;
+  padding: 0.5rem;
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.import-textarea:focus {
+  outline: none;
+  border-color: var(--color-text-dim);
+}
+
+.import-error {
+  color: var(--color-danger);
+  font-size: 0.8rem;
+}
+
+.import-btn {
+  font-size: 0.9rem;
+  padding: 0.3rem 1.5rem;
+  border: 1px solid var(--color-text-dim);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast);
+}
+
+.import-btn:hover:not(:disabled) {
+  border-color: var(--color-text-bright);
+}
+
+.import-btn:disabled {
+  color: var(--color-text-muted);
+  border-color: var(--color-text-muted);
+}
+
+.save-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 500px;
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+}
+
+.save-modal-title {
+  color: var(--color-primary);
+  font-size: 1.1rem;
+  font-weight: normal;
+  text-transform: lowercase;
+}
+
+.save-modal-desc {
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.save-modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.save-modal-note {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  margin-top: 0.5rem;
+}
+
+/* -------------------------------------------------------------------------
    Settings Page
    ------------------------------------------------------------------------- */
 

@@ -282,10 +282,13 @@ export function discoverPOI(
     }
   }
 
+  // Don't re-discover if already in landmarks (just revisiting)
+  const alreadyDiscovered = state.map.landmarks.includes(poiId);
+
   let s = { ...state };
 
   // Add to landmarks
-  if (!s.map.landmarks.includes(poiId)) {
+  if (!alreadyDiscovered) {
     s = {
       ...s,
       map: {
@@ -296,18 +299,52 @@ export function discoverPOI(
   }
 
   // Add discovery text
-  const logEntry = createLogEntry(poiDef.discoveryText, 'narrative');
+  const logEntry = createLogEntry(
+    alreadyDiscovered
+      ? `you return to ${poiDef.name}.`
+      : poiDef.discoveryText,
+    'narrative',
+  );
   s = { ...s, textLog: [...s.textLog, logEntry] };
 
-  // Award loot
-  if (poiDef.loot) {
+  // Set a discovery flag for this POI (e.g., hermitRuinsDiscovered, bunkerExplored)
+  const poiFlagId = poiId.replace('poi_', '') + 'Discovered';
+  s = {
+    ...s,
+    flags: { ...s.flags, [poiFlagId]: true },
+  };
+
+  // Handle special POI flags based on id
+  if (poiId === 'poi_oldBunker') {
+    s = { ...s, flags: { ...s.flags, bunkerExplored: true } };
+  }
+  if (poiId === 'poi_frozenLake') {
+    s = { ...s, flags: { ...s.flags, frozenLakeVisited: true } };
+  }
+  if (poiId === 'poi_bossArena') {
+    s = { ...s, flags: { ...s.flags, bossArenaReached: true } };
+  }
+  if (poiId === 'poi_hermitRuins') {
+    s = { ...s, flags: { ...s.flags, hermitRuinsDiscovered: true } };
+  }
+  if (poiId === 'poi_scoutSurvivor1') {
+    s = { ...s, flags: { ...s.flags, patrolSurvivor1Found: true, patrolMemberFound: true } };
+  }
+  if (poiId === 'poi_scoutSurvivor2') {
+    s = { ...s, flags: { ...s.flags, patrolSurvivor2Found: true, patrolMemberFound: true } };
+  }
+  if (poiId === 'poi_raiderOutpost') {
+    s = { ...s, flags: { ...s.flags, patrolSurvivor3Rescued: true } };
+  }
+
+  // Award loot (only on first visit)
+  if (poiDef.loot && !alreadyDiscovered) {
     const newResources = { ...s.resources };
     for (const [resId, amount] of Object.entries(poiDef.loot)) {
       newResources[resId] = (newResources[resId] ?? 0) + amount;
     }
     s = { ...s, resources: newResources };
 
-    // Log a detailed list of everything found
     const lootList = Object.entries(poiDef.loot)
       .map(([resId, amount]) => `${amount} ${resId}`)
       .join(', ');
@@ -316,6 +353,106 @@ export function discoverPOI(
       'narrative',
     );
     s = { ...s, textLog: [...s.textLog, lootLog] };
+  }
+
+  // Handle quest trigger — activate or advance the linked quest
+  if (poiDef.questTrigger) {
+    const questId = poiDef.questTrigger;
+    const quest = s.quests[questId];
+    if (quest && quest.active && !quest.completed) {
+      const triggerLog = createLogEntry(
+        `this place is connected to your quest.`,
+        'quest',
+      );
+      s = { ...s, textLog: [...s.textLog, triggerLog] };
+    } else if (!quest) {
+      // Activate the quest if not yet active
+      s = {
+        ...s,
+        quests: {
+          ...s.quests,
+          [questId]: {
+            id: questId,
+            active: true,
+            completed: false,
+            failed: false,
+            step: 0,
+            flags: {},
+          },
+        },
+      };
+      const questLog = createLogEntry(
+        `new quest discovered at ${poiDef.name}.`,
+        'quest',
+      );
+      s = { ...s, textLog: [...s.textLog, questLog] };
+    }
+  }
+
+  // Handle special POI types
+  if (poiDef.type === 'dungeon' && !alreadyDiscovered) {
+    // Dungeons trigger a combat encounter
+    const distance = Math.abs(poiDef.position.x - Math.floor(s.map.width / 2)) +
+      Math.abs(poiDef.position.y - Math.floor(s.map.height / 2));
+    // Pick an enemy based on distance
+    const eligible = config.map.enemies.filter((e) => e.minDistance <= distance);
+    if (eligible.length > 0) {
+      const enemy = eligible[eligible.length - 1]; // strongest eligible
+      s = startCombat(s, enemy.id, config);
+      const combatLog = createLogEntry(
+        `a ${enemy.name} guards this place.`,
+        'combat',
+      );
+      s = { ...s, textLog: [...s.textLog, combatLog] };
+    }
+  }
+
+  if (poiDef.type === 'boss') {
+    if (!s.flags.bossDefeated) {
+      // Start boss combat
+      s = startCombat(s, config.boss.id, config);
+      const bossLog = createLogEntry(
+        `${config.boss.name} stands before you. this is the reckoning.`,
+        'combat',
+      );
+      s = { ...s, textLog: [...s.textLog, bossLog] };
+    } else {
+      const bossLog = createLogEntry(
+        'the arena is empty. the king is dead. the way is clear.',
+        'narrative',
+      );
+      s = { ...s, textLog: [...s.textLog, bossLog] };
+    }
+  }
+
+  // Track map exploration percentage
+  const totalTiles = s.map.width * s.map.height;
+  const exploredPercent = (s.map.exploredCount / totalTiles) * 100;
+  if (exploredPercent >= 50 && !s.flags.mapExplored50) {
+    s = { ...s, flags: { ...s.flags, mapExplored50: true } };
+    const mapLog = createLogEntry(
+      'the map takes shape. half the wasteland is known now.',
+      'narrative',
+    );
+    s = { ...s, textLog: [...s.textLog, mapLog] };
+  }
+  if (exploredPercent >= 70 && !s.flags.mapExplored70) {
+    s = { ...s, flags: { ...s.flags, mapExplored70: true } };
+    const mapLog = createLogEntry(
+      'the map is mostly filled in now. the edges are all that remain.',
+      'narrative',
+    );
+    s = { ...s, textLog: [...s.textLog, mapLog] };
+  }
+
+  // Auto-set patrol reported flag when all 3 survivors found
+  if (s.flags.patrolSurvivor1Found && s.flags.patrolSurvivor2Found && s.flags.patrolSurvivor3Rescued && !s.flags.patrolQuestReported) {
+    s = { ...s, flags: { ...s.flags, patrolQuestReported: true } };
+    const patrolLog = createLogEntry(
+      'all three patrol members accounted for. the scout will want to know.',
+      'quest',
+    );
+    s = { ...s, textLog: [...s.textLog, patrolLog] };
   }
 
   return s;

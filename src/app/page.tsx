@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SAVE_KEYS } from '@/persistence/save';
+import { SAVE_KEYS, loadFromLocalStorage, importFromJSON } from '@/persistence/save';
 
 export default function TitleScreen() {
   const router = useRouter();
   const [hasSave, setHasSave] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [importCode, setImportCode] = useState('');
+  const [importError, setImportError] = useState('');
 
   useEffect(() => {
     try {
@@ -18,15 +21,34 @@ export default function TitleScreen() {
   }, []);
 
   const handleNewGame = () => {
+    // Clear any existing autosave so we start fresh
+    try { localStorage.removeItem(SAVE_KEYS.autosave); } catch {}
     router.push('/play');
   };
 
   const handleContinue = () => {
-    router.push('/play?continue=1');
+    const save = loadFromLocalStorage(SAVE_KEYS.autosave);
+    if (save) {
+      router.push('/play?continue=1');
+    }
   };
 
-  const handleSettings = () => {
-    router.push('/settings');
+  const handleImportSubmit = () => {
+    setImportError('');
+    try {
+      // Decode from base64
+      const json = atob(importCode.trim());
+      const save = importFromJSON(json);
+      if (!save) {
+        setImportError('invalid save code. check and try again.');
+        return;
+      }
+      // Store to autosave slot
+      localStorage.setItem(SAVE_KEYS.autosave, JSON.stringify(save));
+      router.push('/play?continue=1');
+    } catch {
+      setImportError('invalid save code. check and try again.');
+    }
   };
 
   return (
@@ -37,8 +59,27 @@ export default function TitleScreen() {
         <button onClick={handleContinue} disabled={!hasSave}>
           continue
         </button>
-        <button onClick={handleSettings}>settings</button>
+        <button onClick={() => setShowImport(!showImport)}>
+          load save
+        </button>
       </nav>
+
+      {showImport && (
+        <div className="import-panel">
+          <p className="import-label">paste your save code below:</p>
+          <textarea
+            className="import-textarea"
+            value={importCode}
+            onChange={(e) => setImportCode(e.target.value)}
+            placeholder="paste save code here..."
+            rows={4}
+          />
+          {importError && <p className="import-error">{importError}</p>}
+          <button className="import-btn" onClick={handleImportSubmit} disabled={!importCode.trim()}>
+            load
+          </button>
+        </div>
+      )}
     </div>
   );
 }

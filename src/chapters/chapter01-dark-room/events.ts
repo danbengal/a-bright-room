@@ -779,6 +779,36 @@ export const events: EventDef[] = [
   },
 
   // =========================================================================
+  // VILLAGE DEFENSE — Raider waves
+  // =========================================================================
+  {
+    id: 'defense_wave1',
+    text: 'raiders at the perimeter. a small group — scouts. they test the defenses. your traps catch two. the rest scatter into the trees.',
+    type: 'crisis',
+    condition: 'flag.bossApproaching == true && !flag.wave1Survived',
+    cooldown: 0,
+    repeatable: false,
+    effects: [
+      { type: 'flag', flagId: 'wave1Survived', flagValue: true },
+      { type: 'log', logText: 'the first wave is beaten back. but more will come.' },
+    ],
+    priority: 9,
+  },
+  {
+    id: 'defense_wave2',
+    text: 'the second wave hits harder. torches and iron. the lodge wall cracks. the archers hold the line. bodies in the snow when it is over.',
+    type: 'crisis',
+    condition: 'flag.wave1Survived == true && !flag.wave2Survived',
+    cooldown: 60,
+    repeatable: false,
+    effects: [
+      { type: 'flag', flagId: 'wave2Survived', flagValue: true },
+      { type: 'log', logText: 'the second wave breaks. the village holds. but the king has not come yet.' },
+    ],
+    priority: 9,
+  },
+
+  // =========================================================================
   // RANDOM — Exploration discoveries
   // =========================================================================
   {
