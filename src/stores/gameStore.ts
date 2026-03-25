@@ -628,6 +628,7 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       if (!currentConfig) return;
       if (!chapterState.explorationActive) return;
       if (chapterState.combat.active) return;
+      if (chapterState.pendingPOI) return; // can't move while POI popup is showing
 
       // Map short direction codes to full names
       const directionMap: Record<string, string> = {

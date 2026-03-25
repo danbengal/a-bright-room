@@ -100,15 +100,16 @@ export function startDialogue(
   // Filter options whose conditions are met
   const availableOptions = getAvailableOptions(node.options, state);
 
+  // Always include a "leave" option so the player is never stuck
+  const optionsForDisplay = availableOptions.length > 0
+    ? availableOptions.map((opt) => ({ id: opt.id, text: opt.text, condition: opt.condition }))
+    : [{ id: '_leave', text: 'say nothing and leave.', condition: undefined }];
+
   const dialogueState: DialogueState = {
     npcId,
     nodeId: node.id,
     text: node.text,
-    options: availableOptions.map((opt) => ({
-      id: opt.id,
-      text: opt.text,
-      condition: opt.condition,
-    })),
+    options: optionsForDisplay,
   };
 
   // Mark this root dialogue node as seen
@@ -156,6 +157,11 @@ export function selectOption(
   );
   if (!currentNode) return state;
 
+  // Handle the fallback "leave" option
+  if (optionId === '_leave') {
+    return { ...state, activeDialogue: null };
+  }
+
   // Find the selected option
   const option = currentNode.options.find((o) => o.id === optionId);
   if (!option) return state;
@@ -175,17 +181,6 @@ export function selectOption(
   const nextNode = npcDef.dialogueTree.find((n) => n.id === option.nextNodeId);
   if (nextNode) {
     const availableOptions = getAvailableOptions(nextNode.options, s);
-    const dialogueState: DialogueState = {
-      npcId,
-      nodeId: nextNode.id,
-      text: nextNode.text,
-      options: availableOptions.map((opt) => ({
-        id: opt.id,
-        text: opt.text,
-        condition: opt.condition,
-      })),
-    };
-    s = { ...s, activeDialogue: dialogueState };
 
     // Apply next node effects
     if (nextNode.effects) {
@@ -196,9 +191,22 @@ export function selectOption(
     const responseLog = createLogEntry(nextNode.text, 'dialogue');
     s = { ...s, textLog: [...s.textLog, responseLog] };
 
-    // If no options remain, close dialogue
-    if (availableOptions.length === 0) {
+    // If this is a terminal node (no options defined at all), close dialogue
+    if (nextNode.options.length === 0) {
       s = { ...s, activeDialogue: null };
+    } else {
+      // Has options — show available ones, or a leave fallback
+      const optionsForDisplay = availableOptions.length > 0
+        ? availableOptions.map((opt) => ({ id: opt.id, text: opt.text, condition: opt.condition }))
+        : [{ id: '_leave', text: 'say nothing and leave.', condition: undefined }];
+
+      const dialogueState: DialogueState = {
+        npcId,
+        nodeId: nextNode.id,
+        text: nextNode.text,
+        options: optionsForDisplay,
+      };
+      s = { ...s, activeDialogue: dialogueState };
     }
   } else {
     // No next node — end dialogue

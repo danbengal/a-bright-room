@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useGameStore } from '@/stores/gameStore';
 
 const DISCOVERY_INTROS = [
@@ -23,6 +23,13 @@ export default function POIPopup() {
     if (!pendingPOI || !currentConfig) return null;
     return currentConfig.map.pointsOfInterest.find((p) => p.id === pendingPOI);
   }, [pendingPOI, currentConfig]);
+
+  // Clear invalid pending POI
+  useEffect(() => {
+    if (pendingPOI && !poiDef) {
+      fleePOI(); // clear the invalid pending state
+    }
+  }, [pendingPOI, poiDef, fleePOI]);
 
   if (!poiDef) return null;
 
