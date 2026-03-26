@@ -16,7 +16,7 @@ import { construct, assignWorkerChecked, unassignWorker } from '@/engine/buildin
 import { craft as engineCraft } from '@/engine/crafting';
 import { startDialogue, selectOption } from '@/engine/npcs';
 import { fireEvent, applyDialogueEffects } from '@/engine/events';
-import { generateMap, move, returnToBase } from '@/engine/exploration';
+import { generateMap, move, returnToBase, discoverPOI } from '@/engine/exploration';
 import { flee, useItem as useCombatItemEngine } from '@/engine/combat';
 import { buildVesselStage, initiateDeparture } from '@/engine/vessel';
 import { processDeath, checkDeath } from '@/engine/death';
@@ -784,7 +784,6 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
       const { chapterState, currentConfig } = get();
       if (!currentConfig || !chapterState.pendingPOI) return;
 
-      const { discoverPOI } = require('@/engine/exploration');
       let s = discoverPOI(chapterState, chapterState.pendingPOI, currentConfig);
       s = { ...s, pendingPOI: null };
       set({ chapterState: s });

@@ -22,7 +22,12 @@ export default function DepartureSequence() {
 
   const allCrafted = parts.every((p) => p.done);
   const bossDefeated = flags.bossDefeated;
-  const canDepart = allCrafted && bossDefeated;
+  const canDepartStandard = allCrafted && bossDefeated;
+
+  // Hidden exits
+  const hermitExit = flags.chapterExitAvailable && flags.poi_hermitPath_found;
+  const lakeExit = flags.chapterExitAvailable && flags.poi_lakeSecret_found;
+  const hasHiddenExit = hermitExit || lakeExit;
 
   return (
     <div className="panel departure-panel">
@@ -39,16 +44,37 @@ export default function DepartureSequence() {
         </div>
       </div>
 
-      {canDepart && (
+      {canDepartStandard && (
         <button className="departure-btn" onClick={depart}>
-          depart
+          depart by vessel
         </button>
       )}
 
-      {!canDepart && (
+      {!canDepartStandard && !hasHiddenExit && (
         <div className="craft-requirement" style={{ marginTop: '0.5rem' }}>
           {!allCrafted && 'craft all vessel parts. '}
           {!bossDefeated && 'defeat the raider king.'}
+        </div>
+      )}
+
+      {hasHiddenExit && (
+        <div className="hidden-exit-section">
+          <div className="panel-header" style={{ marginTop: '1rem' }}>hidden passage</div>
+          {hermitExit && (
+            <div className="panel-item panel-item--equipped">
+              <span className="panel-item-name">the hermit&apos;s path</span>
+              <span className="panel-item-cost">the passage beneath the ruins</span>
+            </div>
+          )}
+          {lakeExit && (
+            <div className="panel-item panel-item--equipped">
+              <span className="panel-item-name">beneath the ice</span>
+              <span className="panel-item-cost">the light below the frozen lake</span>
+            </div>
+          )}
+          <button className="departure-btn" onClick={depart}>
+            take the hidden path
+          </button>
         </div>
       )}
     </div>
