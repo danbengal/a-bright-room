@@ -39,6 +39,7 @@ export default function PlayPage() {
   const gameSpeed = useGameStore((s) => s.gameSpeed);
   const setGameSpeed = useGameStore((s) => s.setGameSpeed);
   const craftingUnlocked = useGameStore((s) => s.chapterState.ticks >= 55);
+  const flags = useGameStore((s) => s.chapterState.flags);
 
   const [tradingOpen, setTradingOpen] = useState(false);
   const [showSaveExport, setShowSaveExport] = useState(false);
@@ -88,7 +89,6 @@ export default function PlayPage() {
     unlockedFeatures.includes('advancedCrafting') ||
     ['settlement', 'questWeb', 'wild', 'reckoning', 'departure'].includes(phase);
   const showQuests = Object.values(quests).some((q) => q.active || q.completed);
-  const flags = useGameStore((s) => s.chapterState.flags);
   const showDeparture = phase === 'departure' || unlockedFeatures.includes('vessel') || flags.vesselBlueprintRevealed;
 
   return (
