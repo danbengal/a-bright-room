@@ -46,13 +46,13 @@ export function generateMap(
     tiles.push(row);
   }
 
-  // Place points of interest
+  // Place points of interest (surface level only — z:0 or undefined)
   for (const poi of config.map.pointsOfInterest) {
-    const { x, y } = poi.position;
+    const { x, y, z } = poi.position;
+    if ((z ?? 0) !== 0) continue; // skip underground POIs
     if (y >= 0 && y < height && x >= 0 && x < width) {
       tiles[y][x] = {
         ...tiles[y][x],
-        z: poi.position.z ?? 0,
         poi: poi.id,
       };
     }
