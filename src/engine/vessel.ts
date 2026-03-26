@@ -105,23 +105,22 @@ export function initiateDeparture(
   config: ChapterConfig,
 ): ChapterState {
   if (state.departing) return state;
-  // Vessel is complete if all 3 parts are crafted
+
+  // Check if a hidden exit is available (bypasses vessel requirement)
+  const hasHiddenExit = state.flags.chapterExitAvailable;
+
+  // Standard exit requires vessel
   const partsReady = state.crafted.includes('vesselHull') &&
     state.crafted.includes('vesselEngine') &&
     state.crafted.includes('vesselNav');
-  if (!partsReady) return state;
 
-  const narrative = config.departure.standardNarrative;
+  if (!partsReady && !hasHiddenExit) return state;
 
-  // Check for hidden narrative conditions
-  // (The hidden narrative plays if certain secret conditions are met;
-  //  for now we use the standard one by default.)
-  let narrativeLines = narrative;
-
-  // Check if the hidden narrative should play
-  if (config.departure.hiddenNarrative.length > 0) {
-    // Hidden narrative conditions could be checked here via evaluateCondition.
-    // For now, we just use standard. Content authors can extend this.
+  // Pick the right narrative
+  let narrativeLines = config.departure.standardNarrative;
+  if (hasHiddenExit && !partsReady) {
+    // Taking the hidden path, not the vessel
+    narrativeLines = config.departure.hiddenNarrative;
   }
 
   // Add all narrative lines to the log
