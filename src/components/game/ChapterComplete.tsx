@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useGameStore } from '@/stores/gameStore';
 
 export default function ChapterComplete() {
@@ -10,11 +10,21 @@ export default function ChapterComplete() {
   const deathCount = useGameStore((s) => s.chapterState.deathCount);
   const exploredCount = useGameStore((s) => s.chapterState.map.exploredCount);
   const mapSize = useGameStore((s) => s.chapterState.map.width * s.chapterState.map.height);
+  const flags = useGameStore((s) => s.chapterState.flags);
+  const quests = useGameStore((s) => s.chapterState.quests);
 
   const [lineIndex, setLineIndex] = useState(0);
   const [showStats, setShowStats] = useState(false);
 
-  const narrative = currentConfig?.departure.standardNarrative ?? [];
+  const exitType = flags.exitType ?? 'standard';
+  const isHidden = exitType === 'hidden';
+
+  const narrative = useMemo(() => {
+    if (!currentConfig) return [];
+    return isHidden
+      ? currentConfig.departure.hiddenNarrative
+      : currentConfig.departure.standardNarrative;
+  }, [currentConfig, isHidden]);
 
   // Advance narrative lines one at a time
   useEffect(() => {
@@ -37,7 +47,7 @@ export default function ChapterComplete() {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       if (lineIndex < narrative.length) {
-        setLineIndex(narrative.length); // skip to end
+        setLineIndex(narrative.length);
       }
     }
   }, [lineIndex, narrative.length]);
@@ -52,14 +62,30 @@ export default function ChapterComplete() {
   const playMinutes = Math.floor(ticks / 60);
   const exploredPct = mapSize > 0 ? Math.round((exploredCount / mapSize) * 100) : 0;
 
+  const questsCompleted = Object.values(quests).filter((q) => q.completed).length;
+  const questsTotal = Object.values(quests).length;
+
   const handleReturnToTitle = () => {
-    // Save and return to title
-    useGameStore.getState().autoSave();
+    // Record exit type in global state for future chapters
+    const state = useGameStore.getState();
+    useGameStore.setState({
+      globalState: {
+        ...state.globalState,
+        chaptersCompleted: [...state.globalState.chaptersCompleted, 'chapter01-dark-room'],
+        exitsTaken: { ...state.globalState.exitsTaken, 'chapter01-dark-room': exitType },
+        totalDeaths: state.globalState.totalDeaths + deathCount,
+        totalPlaytime: state.globalState.totalPlaytime + ticks,
+        parallaxShards: isHidden
+          ? [...state.globalState.parallaxShards, 'shard_chapter01']
+          : state.globalState.parallaxShards,
+      },
+    });
+    state.autoSave();
     window.location.href = '/';
   };
 
   return (
-    <div className="chapter-complete-overlay">
+    <div className={`chapter-complete-overlay ${isHidden ? 'chapter-complete--hidden' : ''}`}>
       <div className="chapter-complete">
         <div className="chapter-complete-narrative">
           {narrative.slice(0, lineIndex).map((line, i) => (
@@ -69,14 +95,27 @@ export default function ChapterComplete() {
 
         {showStats && (
           <div className="chapter-complete-stats">
-            <h3 className="chapter-complete-title">chapter 1 complete</h3>
+            <h3 className="chapter-complete-title">
+              {isHidden ? 'chapter 1 — the hidden path' : 'chapter 1 complete'}
+            </h3>
             <div className="chapter-complete-stat-list">
               <div>time: {playMinutes} minutes</div>
               <div>deaths: {deathCount}</div>
               <div>map explored: {exploredPct}%</div>
+              <div>quests: {questsCompleted}/{questsTotal}</div>
+              <div>exit: {isHidden ? 'the hermit\'s passage' : 'the vessel'}</div>
             </div>
+
+            {isHidden && (
+              <p className="chapter-complete-shard">
+                parallax shard acquired. the hermit showed you a door that shouldn&apos;t exist. this will matter later.
+              </p>
+            )}
+
             <p className="chapter-complete-end">
-              the story continues... but not yet. chapter 2 is coming.
+              {isHidden
+                ? 'you chose the path less seen. the parallax remembers.'
+                : 'the story continues... but not yet. chapter 2 is coming.'}
             </p>
             <button className="departure-btn" onClick={handleReturnToTitle}>
               return to title

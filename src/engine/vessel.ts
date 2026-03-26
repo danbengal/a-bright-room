@@ -116,15 +116,20 @@ export function initiateDeparture(
 
   if (!partsReady && !hasHiddenExit) return state;
 
+  // Determine exit type
+  const exitType = (hasHiddenExit && !partsReady) ? 'hidden' : 'standard';
+
   // Pick the right narrative
-  let narrativeLines = config.departure.standardNarrative;
-  if (hasHiddenExit && !partsReady) {
-    // Taking the hidden path, not the vessel
-    narrativeLines = config.departure.hiddenNarrative;
-  }
+  const narrativeLines = exitType === 'hidden'
+    ? config.departure.hiddenNarrative
+    : config.departure.standardNarrative;
 
   // Add all narrative lines to the log
-  let s = { ...state, departing: true };
+  let s = {
+    ...state,
+    departing: true,
+    flags: { ...state.flags, exitType },
+  };
   for (const line of narrativeLines) {
     const logEntry = createLogEntry(line, 'narrative');
     s = { ...s, textLog: [...s.textLog, logEntry] };
