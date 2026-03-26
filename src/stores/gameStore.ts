@@ -355,14 +355,25 @@ export const useGameStore = create<GameStoreState & GameStoreActions>()(
     },
 
     loadGame: (saveState: SaveState) => {
+      // Patch missing fields that may not exist in older saves
+      const cs = saveState.chapterState;
+      if (!cs.pendingPOI && cs.pendingPOI !== null) cs.pendingPOI = null;
+      if (!cs.equipped) cs.equipped = { weapon: null, armor: null, accessory: null };
+      if (!cs.flags) cs.flags = {};
+
+      // Must set currentConfig so all components work
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { chapter01Config } = require('@/chapters/chapter01-dark-room/config');
+
       set({
         version: saveState.version,
         lastSaveTimestamp: saveState.lastSaveTimestamp,
         currentChapter: saveState.currentChapter,
-        chapterState: saveState.chapterState,
+        chapterState: cs,
         globalState: saveState.globalState,
         initialized: true,
         paused: false,
+        currentConfig: chapter01Config,
       });
     },
 

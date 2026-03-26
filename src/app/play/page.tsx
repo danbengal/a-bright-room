@@ -23,6 +23,7 @@ import TradingPost from '@/components/game/TradingPost';
 import Inventory from '@/components/game/Inventory';
 import ForcedReturnPopup from '@/components/game/ForcedReturnPopup';
 import POIPopup from '@/components/game/POIPopup';
+import ChapterComplete from '@/components/game/ChapterComplete';
 import Notifications from '@/components/game/Notifications';
 
 export default function PlayPage() {
@@ -138,6 +139,7 @@ export default function PlayPage() {
       {tradingOpen && <TradingPost onClose={() => setTradingOpen(false)} />}
       <POIPopup />
       <ForcedReturnPopup />
+      <ChapterComplete />
       {showSaveExport && <SaveExportModal onClose={() => setShowSaveExport(false)} />}
       <Notifications />
     </div>

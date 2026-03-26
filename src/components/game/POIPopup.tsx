@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 import { useGameStore } from '@/stores/gameStore';
 
 const DISCOVERY_INTROS = [
@@ -24,10 +24,25 @@ export default function POIPopup() {
     return currentConfig.map.pointsOfInterest.find((p) => p.id === pendingPOI);
   }, [pendingPOI, currentConfig]);
 
+  // Keyboard: Enter to enter, Escape to leave
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!poiDef) return;
+      if (e.key === 'Enter') { e.preventDefault(); enterPOI(); }
+      if (e.key === 'Escape') { e.preventDefault(); fleePOI(); }
+    },
+    [poiDef, enterPOI, fleePOI],
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   // Clear invalid pending POI
   useEffect(() => {
     if (pendingPOI && !poiDef) {
-      fleePOI(); // clear the invalid pending state
+      fleePOI();
     }
   }, [pendingPOI, poiDef, fleePOI]);
 
@@ -43,10 +58,10 @@ export default function POIPopup() {
         <p className="poi-popup-desc">{poiDef.description}</p>
         <div className="poi-popup-actions">
           <button className="poi-popup-btn poi-popup-btn--enter" onClick={enterPOI}>
-            enter
+            enter [enter]
           </button>
           <button className="poi-popup-btn poi-popup-btn--flee" onClick={fleePOI}>
-            leave
+            leave [esc]
           </button>
         </div>
       </div>

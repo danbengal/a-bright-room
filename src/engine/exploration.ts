@@ -409,7 +409,6 @@ export function discoverPOI(
 
   if (poiDef.type === 'boss') {
     if (!s.flags.bossDefeated) {
-      // Start boss combat
       s = startCombat(s, config.boss.id, config);
       const bossLog = createLogEntry(
         `${config.boss.name} stands before you. this is the reckoning.`,
@@ -422,6 +421,48 @@ export function discoverPOI(
         'narrative',
       );
       s = { ...s, textLog: [...s.textLog, bossLog] };
+    }
+  }
+
+  // Handle exit POIs — check if a hidden exit at this location is unlocked
+  if (poiDef.type === 'exit' || poiDef.type === 'landmark' || poiDef.type === 'quest') {
+    // Check for underground exit POIs at this same x,y
+    for (const exitPoi of config.map.pointsOfInterest) {
+      if (exitPoi.type !== 'exit') continue;
+      if (exitPoi.position.x !== poiDef.position.x || exitPoi.position.y !== poiDef.position.y) continue;
+      if (exitPoi.position.z === poiDef.position.z) continue; // same tile, skip
+      if (exitPoi.hidden && exitPoi.revealCondition && !evaluateCondition(exitPoi.revealCondition, s)) continue;
+
+      // Exit is accessible
+      const exitLog = createLogEntry(
+        exitPoi.discoveryText,
+        'narrative',
+      );
+      s = {
+        ...s,
+        flags: { ...s.flags, [`${exitPoi.id}_found`]: true, chapterExitAvailable: true, chapterExitId: true },
+        textLog: [...s.textLog, exitLog],
+      };
+      const exitHint = createLogEntry(
+        'a way out. return to the village to depart.',
+        'quest',
+      );
+      s = { ...s, textLog: [...s.textLog, exitHint] };
+    }
+  }
+
+  // Direct exit POI handling (if the exit itself is on the surface)
+  if (poiDef.type === 'exit') {
+    if (!poiDef.hidden || !poiDef.revealCondition || evaluateCondition(poiDef.revealCondition, s)) {
+      s = {
+        ...s,
+        flags: { ...s.flags, chapterExitAvailable: true, [`${poiId}_found`]: true },
+      };
+      const exitLog = createLogEntry(
+        'a way out of this place. return to the village when you are ready.',
+        'quest',
+      );
+      s = { ...s, textLog: [...s.textLog, exitLog] };
     }
   }
 
