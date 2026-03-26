@@ -11,7 +11,11 @@ import { createLogEntry } from './core';
 export function evaluateCondition(
   condition: string,
   state: ChapterState,
+  _depth: number = 0,
 ): boolean {
+  // Guard against infinite recursion
+  if (_depth > 20) return false;
+
   if (!condition || condition.trim() === '' || condition.trim() === 'true') {
     return true;
   }
@@ -19,25 +23,46 @@ export function evaluateCondition(
     return false;
   }
 
-  const trimmed = condition.trim();
+  let trimmed = condition.trim();
+
+  // Strip outer parentheses: "(expr)" → "expr"
+  while (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+    // Verify the parens are actually wrapping the whole expression
+    let depth = 0;
+    let isWrapped = true;
+    for (let i = 0; i < trimmed.length - 1; i++) {
+      if (trimmed[i] === '(') depth++;
+      if (trimmed[i] === ')') depth--;
+      if (depth === 0) { isWrapped = false; break; }
+    }
+    if (isWrapped) {
+      trimmed = trimmed.slice(1, -1).trim();
+    } else {
+      break;
+    }
+  }
 
   // Handle negation prefix: !expression
   if (trimmed.startsWith('!') && !trimmed.startsWith('!=')) {
     const inner = trimmed.slice(1).trim();
-    return !evaluateCondition(inner, state);
+    return !evaluateCondition(inner, state, _depth + 1);
   }
 
   // Handle compound conditions with && and ||
   // Process || first (lower precedence)
-  if (condition.includes('||')) {
-    const parts = splitOnOperator(condition, '||');
-    return parts.some((part) => evaluateCondition(part.trim(), state));
+  if (trimmed.includes('||')) {
+    const parts = splitOnOperator(trimmed, '||');
+    if (parts.length > 1) {
+      return parts.some((part) => evaluateCondition(part.trim(), state, _depth + 1));
+    }
   }
 
   // Process && (higher precedence than ||)
-  if (condition.includes('&&')) {
-    const parts = splitOnOperator(condition, '&&');
-    return parts.every((part) => evaluateCondition(part.trim(), state));
+  if (trimmed.includes('&&')) {
+    const parts = splitOnOperator(trimmed, '&&');
+    if (parts.length > 1) {
+      return parts.every((part) => evaluateCondition(part.trim(), state, _depth + 1));
+    }
   }
 
   // Handle crafted.includes("x") pattern

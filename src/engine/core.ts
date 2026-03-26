@@ -135,7 +135,12 @@ export function processTick(
   // 16. Auto-equip best gear
   s = autoEquipBestGear(s);
 
-  // 17. Check death
+  // 17. Cap textLog to prevent memory bloat (keep last 200 entries)
+  if (s.textLog.length > 200) {
+    s = { ...s, textLog: s.textLog.slice(-150) };
+  }
+
+  // 18. Check death
   if (checkDeath(s)) {
     eventBus.emit('death', s);
   }
