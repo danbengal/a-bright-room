@@ -638,6 +638,12 @@ button:active:not(:disabled) {
   margin-top: 0.2rem;
 }
 
+.craft-requirement {
+  font-size: 0.7rem;
+  color: var(--color-accent);
+  padding: 0.15rem 0;
+}
+
 /* NPC list */
 
 .npc-relationship {

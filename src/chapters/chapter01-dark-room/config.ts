@@ -776,7 +776,7 @@ const crafting: CraftRecipeDef[] = [
       stackable: false,
     },
     buildingRequired: 'workshop',
-    buildingLevel: 1,
+    buildingLevel: 2,
     unlockCondition: { type: 'building', target: 'workshop', value: 2 },
   },
   {
@@ -811,7 +811,7 @@ const crafting: CraftRecipeDef[] = [
       stackable: false,
     },
     buildingRequired: 'armoury',
-    buildingLevel: 1,
+    buildingLevel: 2,
     unlockCondition: { type: 'building', target: 'armoury', value: 2 },
   },
   {
@@ -829,7 +829,7 @@ const crafting: CraftRecipeDef[] = [
       stackable: false,
     },
     buildingRequired: 'armoury',
-    buildingLevel: 1,
+    buildingLevel: 3,
     unlockCondition: { type: 'building', target: 'armoury', value: 3 },
   },
   {
@@ -845,7 +845,7 @@ const crafting: CraftRecipeDef[] = [
       stackable: false,
     },
     buildingRequired: 'armoury',
-    buildingLevel: 1,
+    buildingLevel: 2,
     unlockCondition: { type: 'quest', target: 'mainDiscover', value: 3 },
   },
   {
@@ -861,7 +861,7 @@ const crafting: CraftRecipeDef[] = [
       stackable: false,
     },
     buildingRequired: 'armoury',
-    buildingLevel: 1,
+    buildingLevel: 2,
     unlockCondition: { type: 'quest', target: 'mainDiscover', value: 4 },
   },
   {
@@ -877,7 +877,7 @@ const crafting: CraftRecipeDef[] = [
       stackable: false,
     },
     buildingRequired: 'workshop',
-    buildingLevel: 1,
+    buildingLevel: 3,
     unlockCondition: { type: 'quest', target: 'mainDiscover', value: 4 },
   },
 ];

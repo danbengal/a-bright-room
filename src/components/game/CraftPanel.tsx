@@ -8,6 +8,7 @@ const MULTIPLIERS = [1, 2, 5, 10] as const;
 
 export default function CraftPanel() {
   const resources = useGameStore((s) => s.chapterState.resources);
+  const buildings = useGameStore((s) => s.chapterState.buildings);
   const unlockedCrafting = useGameStore(
     (s) => s.chapterState.unlockedCrafting,
   );
@@ -20,7 +21,6 @@ export default function CraftPanel() {
     if (!currentConfig) return [];
     return currentConfig.crafting.filter((recipe) => {
       if (!unlockedCrafting.includes(recipe.id)) return false;
-      // Hide non-stackable items that have already been crafted
       if (!recipe.result.stackable && crafted.includes(recipe.id)) return false;
       return true;
     });
@@ -50,6 +50,7 @@ export default function CraftPanel() {
             key={recipe.id}
             recipe={recipe}
             resources={resources}
+            buildings={buildings}
             alreadyCrafted={!recipe.result.stackable && crafted.includes(recipe.id)}
             multiplier={recipe.result.stackable ? multiplier : 1}
             onCraft={() => craft(recipe.id, recipe.result.stackable ? multiplier : 1)}
@@ -63,19 +64,20 @@ export default function CraftPanel() {
 function CraftRow({
   recipe,
   resources,
+  buildings,
   alreadyCrafted,
   multiplier,
   onCraft,
 }: {
   recipe: CraftRecipeDef;
   resources: Record<string, number>;
+  buildings: Record<string, { level: number; workers: number }>;
   alreadyCrafted: boolean;
   multiplier: number;
   onCraft: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
 
-  // Total cost = per-craft cost * multiplier
   const totalCosts: Record<string, number> = {};
   for (const [resId, amount] of Object.entries(recipe.costs)) {
     totalCosts[resId] = amount * multiplier;
@@ -85,9 +87,17 @@ function CraftRow({
     ([resId, amount]) => (resources[resId] ?? 0) >= amount,
   );
 
+  // Check building level requirement
+  const requiredBuilding = recipe.buildingRequired;
+  const requiredLevel = recipe.buildingLevel ?? 1;
+  const currentBuildingLevel = requiredBuilding ? (buildings[requiredBuilding]?.level ?? 0) : 999;
+  const buildingMet = currentBuildingLevel >= requiredLevel;
+
   const costStr = Object.entries(totalCosts)
     .map(([resId, amount]) => `${resId} ${amount}`)
     .join(', ');
+
+  const canCraft = canAfford && buildingMet && !alreadyCrafted;
 
   const stats: string[] = [];
   if (recipe.result.attack) stats.push(`attack: ${recipe.result.attack}`);
@@ -117,12 +127,17 @@ function CraftRow({
         </span>
         <button
           className="panel-item-btn"
-          disabled={!canAfford || alreadyCrafted}
+          disabled={!canCraft}
           onClick={onCraft}
         >
           {alreadyCrafted ? 'done' : multiplier > 1 ? `craft ${multiplier}` : 'craft'}
         </button>
       </div>
+      {!buildingMet && requiredBuilding && (
+        <div className="craft-requirement">
+          requires {requiredBuilding} level {requiredLevel} (currently {currentBuildingLevel})
+        </div>
+      )}
       {hovered && (
         <div className="tooltip-popup">
           <p className="tooltip-desc">{recipe.description}</p>
@@ -133,6 +148,11 @@ function CraftRow({
                 <li key={i}>{s}</li>
               ))}
             </ul>
+          )}
+          {requiredBuilding && (
+            <p className="tooltip-workers">
+              requires: {requiredBuilding} lv.{requiredLevel}
+            </p>
           )}
         </div>
       )}
