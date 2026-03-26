@@ -16,8 +16,7 @@ export default function ChapterComplete() {
   const [lineIndex, setLineIndex] = useState(0);
   const [showStats, setShowStats] = useState(false);
 
-  const exitType = flags.exitType ?? 'standard';
-  const isHidden = exitType === 'hidden';
+  const isHidden = flags.exitHidden === true;
 
   const narrative = useMemo(() => {
     if (!currentConfig) return [];
@@ -72,7 +71,7 @@ export default function ChapterComplete() {
       globalState: {
         ...state.globalState,
         chaptersCompleted: [...state.globalState.chaptersCompleted, 'chapter01-dark-room'],
-        exitsTaken: { ...state.globalState.exitsTaken, 'chapter01-dark-room': exitType },
+        exitsTaken: { ...state.globalState.exitsTaken, 'chapter01-dark-room': isHidden ? 'hidden' : 'standard' },
         totalDeaths: state.globalState.totalDeaths + deathCount,
         totalPlaytime: state.globalState.totalPlaytime + ticks,
         parallaxShards: isHidden
