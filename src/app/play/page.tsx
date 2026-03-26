@@ -88,7 +88,8 @@ export default function PlayPage() {
     unlockedFeatures.includes('advancedCrafting') ||
     ['settlement', 'questWeb', 'wild', 'reckoning', 'departure'].includes(phase);
   const showQuests = Object.values(quests).some((q) => q.active || q.completed);
-  const showDeparture = phase === 'departure' || unlockedFeatures.includes('vessel');
+  const flags = useGameStore((s) => s.chapterState.flags);
+  const showDeparture = phase === 'departure' || unlockedFeatures.includes('vessel') || flags.vesselBlueprintRevealed;
 
   return (
     <div className="game-shell">

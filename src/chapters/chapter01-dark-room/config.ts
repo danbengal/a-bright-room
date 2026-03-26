@@ -846,7 +846,7 @@ const crafting: CraftRecipeDef[] = [
     },
     buildingRequired: 'armoury',
     buildingLevel: 2,
-    unlockCondition: { type: 'quest', target: 'mainDiscover', value: 3 },
+    unlockCondition: { type: 'quest', target: 'mainDiscover', value: 2 },
   },
   {
     id: 'vesselEngine',
@@ -862,7 +862,7 @@ const crafting: CraftRecipeDef[] = [
     },
     buildingRequired: 'armoury',
     buildingLevel: 2,
-    unlockCondition: { type: 'quest', target: 'mainDiscover', value: 4 },
+    unlockCondition: { type: 'quest', target: 'mainDiscover', value: 3 },
   },
   {
     id: 'vesselNav',
@@ -878,7 +878,7 @@ const crafting: CraftRecipeDef[] = [
     },
     buildingRequired: 'workshop',
     buildingLevel: 3,
-    unlockCondition: { type: 'quest', target: 'mainDiscover', value: 4 },
+    unlockCondition: { type: 'quest', target: 'mainDiscover', value: 3 },
   },
 ];
 

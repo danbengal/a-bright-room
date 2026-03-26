@@ -104,8 +104,12 @@ export function initiateDeparture(
   state: ChapterState,
   config: ChapterConfig,
 ): ChapterState {
-  if (!isVesselComplete(state, config)) return state;
   if (state.departing) return state;
+  // Vessel is complete if all 3 parts are crafted
+  const partsReady = state.crafted.includes('vesselHull') &&
+    state.crafted.includes('vesselEngine') &&
+    state.crafted.includes('vesselNav');
+  if (!partsReady) return state;
 
   const narrative = config.departure.standardNarrative;
 

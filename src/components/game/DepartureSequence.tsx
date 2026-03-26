@@ -1,76 +1,59 @@
 'use client';
 
-import { useMemo } from 'react';
 import { useGameStore } from '@/stores/gameStore';
 
 export default function DepartureSequence() {
-  const vesselProgress = useGameStore((s) => s.chapterState.vesselProgress);
-  const resources = useGameStore((s) => s.chapterState.resources);
+  const crafted = useGameStore((s) => s.chapterState.crafted);
+  const flags = useGameStore((s) => s.chapterState.flags);
   const currentConfig = useGameStore((s) => s.currentConfig);
-  const buildVessel = useGameStore((s) => s.buildVessel);
   const depart = useGameStore((s) => s.depart);
 
   if (!currentConfig) return null;
 
-  const vesselDef = currentConfig.vessel;
-  const stages = vesselDef.stages;
+  const parts = [
+    { id: 'vesselHull', name: 'hull assembly', done: crafted.includes('vesselHull') },
+    { id: 'vesselEngine', name: 'engine installation', done: crafted.includes('vesselEngine') },
+    { id: 'vesselNav', name: 'navigation systems', done: crafted.includes('vesselNav') },
+  ];
 
-  const allComplete = useMemo(() => {
-    return stages.every((stage) => vesselProgress[stage.id] === true);
-  }, [stages, vesselProgress]);
+  const allCrafted = parts.every((p) => p.done);
+  const bossDefeated = flags.bossDefeated;
+  const canDepart = allCrafted && bossDefeated;
 
   return (
     <div className="panel departure-panel">
-      <div className="panel-header">{vesselDef.name}</div>
-      <div className="departure-stages">
-        {stages.map((stage) => {
-          const complete = vesselProgress[stage.id] === true;
-          const canAfford = Object.entries(stage.costs).every(
-            ([resId, amount]) => (resources[resId] ?? 0) >= amount,
-          );
-
-          const costStr = Object.entries(stage.costs)
-            .map(([resId, amount]) => `${resId} ${amount}`)
-            .join(', ');
-
-          return (
-            <div
-              key={stage.id}
-              className={`departure-stage${
-                complete ? ' departure-stage--complete' : ''
-              }`}
-            >
-              <span className="panel-item-name">{stage.name}</span>
-              {!complete && (
-                <>
-                  <span
-                    className={`panel-item-cost${
-                      !canAfford ? ' panel-item-cost--unaffordable' : ''
-                    }`}
-                  >
-                    {costStr}
-                  </span>
-                  <button
-                    className="panel-item-btn"
-                    disabled={!canAfford}
-                    onClick={() => buildVessel(stage.id)}
-                  >
-                    build
-                  </button>
-                </>
-              )}
-              {complete && (
-                <span className="panel-item-cost">complete</span>
-              )}
-            </div>
-          );
-        })}
+      <div className="panel-header">the vessel</div>
+      <div className="panel-list">
+        {parts.map((part) => (
+          <div
+            key={part.id}
+            className={`panel-item ${part.done ? 'panel-item--equipped' : ''}`}
+          >
+            <span className="panel-item-name">{part.name}</span>
+            <span className="panel-item-cost">
+              {part.done ? 'complete' : 'craft in crafting panel'}
+            </span>
+          </div>
+        ))}
+        <div className={`panel-item ${bossDefeated ? 'panel-item--equipped' : ''}`}>
+          <span className="panel-item-name">clear the way</span>
+          <span className="panel-item-cost">
+            {bossDefeated ? 'the king is dead' : 'defeat the raider king'}
+          </span>
+        </div>
       </div>
 
-      {allComplete && (
+      {canDepart && (
         <button className="departure-btn" onClick={depart}>
           depart
         </button>
+      )}
+
+      {!canDepart && (
+        <div className="craft-requirement" style={{ marginTop: '0.5rem' }}>
+          {!allCrafted && 'craft all vessel parts. '}
+          {!bossDefeated && 'defeat the raider king.'}
+        </div>
       )}
     </div>
   );
