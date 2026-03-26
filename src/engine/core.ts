@@ -105,10 +105,18 @@ export function processTick(
   // 7. Check phase transitions
   s = checkPhaseTransitions(s, chapterConfig);
 
-  // 8. Check event triggers (limit to 1 per tick to avoid log flooding)
+  // 8. Check event triggers
+  // Fire ALL non-repeatable events immediately (milestones, arrivals, story beats)
+  // Limit repeatable events to 1 per tick (atmospheric, random)
   const eventsToFire = checkEvents(s, chapterConfig);
-  if (eventsToFire.length > 0) {
-    s = fireEvent(s, eventsToFire[0].id, chapterConfig);
+  let firedRepeatable = false;
+  for (const evt of eventsToFire) {
+    if (!evt.repeatable) {
+      s = fireEvent(s, evt.id, chapterConfig);
+    } else if (!firedRepeatable) {
+      s = fireEvent(s, evt.id, chapterConfig);
+      firedRepeatable = true;
+    }
   }
 
   // 9. Check NPC arrivals
