@@ -138,11 +138,22 @@ export function flee(
   const combatLog = [
     ...state.combat.log,
     fleeDamage > 0
-      ? `You flee, taking ${fleeDamage} damage as you escape!`
-      : 'You manage to flee!',
+      ? `you flee, taking ${fleeDamage} damage as you escape.`
+      : 'you manage to escape.',
   ];
 
-  const logEntry = createLogEntry('You fled from combat.', 'combat');
+  const logEntry = createLogEntry(
+    'you flee back to the village. the wasteland will wait.',
+    'combat',
+  );
+
+  // Return unused expedition supplies to main resources
+  const newResources = { ...state.resources };
+  for (const [resId, amount] of Object.entries(state.expeditionSupplies)) {
+    if (amount > 0) {
+      newResources[resId] = (newResources[resId] ?? 0) + amount;
+    }
+  }
 
   return {
     ...state,
@@ -151,6 +162,18 @@ export function flee(
       log: combatLog,
     },
     health: newHealth,
+    resources: newResources,
+    explorationActive: false,
+    expeditionSupplies: {},
+    pendingPOI: null,
+    map: {
+      ...state.map,
+      playerPos: {
+        x: Math.floor(state.map.width / 2),
+        y: Math.floor(state.map.height / 2),
+        z: 0,
+      },
+    },
     textLog: [...state.textLog, logEntry],
   };
 }
